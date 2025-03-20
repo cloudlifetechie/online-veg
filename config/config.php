@@ -10,7 +10,7 @@ define('STRIPE_SECRET_KEY', 'sk_test_XXXXXXXXXXXXXXXXXXXXXXXX');
 define('STRIPE_PUBLIC_KEY', 'pk_test_XXXXXXXXXXXXXXXXXXXXXXXX'); 
 
 // Base URL
-define('BASE_URL', 'http://52.90.66.221/public/');
+define('BASE_URL', 'http://ip/public/');
 
 // Start session
 session_start();
