@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful</title>
+    <title>Order Success</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
 </head>
 <body>
-    <h1>Thank you for your order!</h1>
-    <p>Your payment was successful, and your order is being processed.</p>
-    <a href="home.php">Go to Home</a>
+    <h1>Order Placed Successfully!</h1>
+    <p>Your payment intent ID is: <?php echo $_GET['payment_intent']; ?></p>
+    <a href="<?php echo BASE_URL; ?>">Continue Shopping</a>
 </body>
 </html>

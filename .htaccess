@@ -1,6 +1,7 @@
 RewriteEngine On
-RewriteRule ^cart$ cart.php [L]
-RewriteRule ^checkout$ checkout.php [L]
-RewriteRule ^admin$ admin_login.php [L]
-RewriteRule ^admin/dashboard$ admin_dashboard.php [L]
-RewriteRule ^order/details$ order_details.php [L]
+RewriteBase /vegetable-shop/public/
+
+# Redirect all requests to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]

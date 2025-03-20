@@ -1,19 +1,16 @@
 <?php
 class Order {
-    public function createOrder($userId, $paymentIntentId) {
-        global $db;
-        $query = "INSERT INTO orders (user_id, payment_intent_id) VALUES (?, ?)";
-        $stmt = $db->prepare($query);
-        $stmt->bind_param('is', $userId, $paymentIntentId);
-        return $stmt->execute();
+    private $db;
+
+    public function __construct() {
+        $this->db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     }
 
-    public function getOrderDetails($orderId) {
-        global $db;
-        $query = "SELECT * FROM orders WHERE order_id = ?";
-        $stmt = $db->prepare($query);
-        $stmt->bind_param('i', $orderId);
+    public function create($user_id, $items) {
+        // Insert order into database
+        $stmt = $this->db->prepare("INSERT INTO orders (user_id) VALUES (?)");
+        $stmt->bind_param("i", $user_id);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
+        return $stmt->insert_id;
     }
 }

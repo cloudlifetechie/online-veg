@@ -1,31 +1,45 @@
 body {
     font-family: Arial, sans-serif;
-}
-
-header {
-    background-color: #4CAF50;
-    padding: 10px 0;
-    text-align: center;
-    color: white;
-}
-
-.container {
-    width: 80%;
-    margin: 0 auto;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
 }
 
 h1 {
-    text-align: center;
+    color: #333;
+}
+
+form {
+    margin: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    margin-bottom: 10px;
+    padding: 5px;
 }
 
 button {
-    background-color: #4CAF50;
-    color: white;
     padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
     border: none;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #218838;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }

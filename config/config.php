@@ -1,15 +1,12 @@
 <?php
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
-define('DB_PASSWORD', '');
+define('DB_PASS', '');
 define('DB_NAME', 'vegetable_shop');
 
-define('STRIPE_SECRET_KEY', 'your_stripe_secret_key');
-define('STRIPE_PUBLIC_KEY', 'your_stripe_public_key');
+// Stripe Configuration
+define('STRIPE_SECRET_KEY', 'sk_test_XXXXXXXXXXXXXXXXXXXXXXXX'); // Replace with your Stripe Secret Key
+define('STRIPE_PUBLIC_KEY', 'pk_test_XXXXXXXXXXXXXXXXXXXXXXXX'); // Replace with your Stripe Publishable Key
 
-// Create database connection
-$db = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-
-if ($db->connect_error) {
-    die("Connection failed: " . $db->connect_error);
-}
+// Other configuration settings
+define('BASE_URL', 'http://localhost/vegetable-shop/public/');

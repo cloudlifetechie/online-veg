@@ -1,19 +1,16 @@
 <?php
 class User {
-    public function authenticate($email, $password) {
-        global $db;
-        $query = "SELECT * FROM users WHERE email = ? AND password = ?";
-        $stmt = $db->prepare($query);
-        $stmt->bind_param('ss', $email, $password);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
+    private $db;
+
+    public function __construct() {
+        $this->db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     }
 
-    public function createUser($email, $password, $name) {
-        global $db;
-        $query = "INSERT INTO users (email, password, name) VALUES (?, ?, ?)";
-        $stmt = $db->prepare($query);
-        $stmt->bind_param('sss', $email, $password, $name);
-        return $stmt->execute();
+    public function authenticate($username, $password) {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
+        $stmt->bind_param("ss", $username, $password);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
     }
 }
