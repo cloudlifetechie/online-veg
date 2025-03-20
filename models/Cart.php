@@ -1,17 +1,25 @@
 <?php
 class Cart {
-    public function addItem($product_id, $quantity) {
-        if (!isset($_SESSION['cart'])) {
-            $_SESSION['cart'] = [];
-        }
-        $_SESSION['cart'][$product_id] = $quantity;
+    private $conn;
+
+    public function __construct($conn) {
+        $this->conn = $conn;
     }
 
-    public function getItems() {
-        return $_SESSION['cart'] ?? [];
+    public function addToCart($userId, $productId, $quantity) {
+        $sql = "INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("iii", $userId, $productId, $quantity);
+        $stmt->execute();
     }
 
-    public function clear() {
-        unset($_SESSION['cart']);
+    public function getCartItems($userId) {
+        $sql = "SELECT * FROM cart WHERE user_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 }
+?>

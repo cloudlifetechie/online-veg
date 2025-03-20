@@ -1,47 +1,42 @@
 <?php
 class Order {
-    private $db;
+    private $conn;
 
-    public function __construct() {
-        $this->db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-        if ($this->db->connect_error) {
-            die("Connection failed: " . $this->db->connect_error);
-        }
+    public function __construct($conn) {
+        $this->conn = $conn;
     }
 
-    public function create($user_id, $items) {
-        // Insert order into database
-        $stmt = $this->db->prepare("INSERT INTO orders (user_id, total_amount) VALUES (?, ?)");
-        $totalAmount = $this->calculateTotalAmount($items);
-        $stmt->bind_param("ii", $user_id, $totalAmount);
+    // Get all orders
+    public function getAllOrders() {
+        $sql = "SELECT * FROM orders";
+        $result = $this->conn->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Get order details by order ID
+    public function getOrderDetails($orderId) {
+        $sql = "SELECT * FROM order_items WHERE order_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $orderId);
         $stmt->execute();
-        $order_id = $stmt->insert_id;
-
-        // Insert order items
-        foreach ($items as $product_id => $quantity) {
-            $product = (new Product())->getProductById($product_id);
-            $this->addOrderItem($order_id, $product_id, $quantity, $product['price']);
-        }
-
-        return $order_id;
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    private function calculateTotalAmount($items) {
-        $totalAmount = 0;
-        foreach ($items as $product_id => $quantity) {
-            $product = (new Product())->getProductById($product_id);
-            $totalAmount += $product['price'] * $quantity;
-        }
-        return $totalAmount;
+    // Update order status (for admin functionality)
+    public function updateOrderStatus($orderId, $status) {
+        $sql = "UPDATE orders SET status = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("si", $status, $orderId);
+        return $stmt->execute();
     }
 
-    private function addOrderItem($order_id, $product_id, $quantity, $price) {
-        $stmt = $this->db->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("iiii", $order_id, $product_id, $quantity, $price);
-        $stmt->execute();
-    }
-
-    public function __destruct() {
-        $this->db->close();
+    // Delete an order (for admin functionality)
+    public function deleteOrder($orderId) {
+        $sql = "DELETE FROM orders WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $orderId);
+        return $stmt->execute();
     }
 }
+?>
