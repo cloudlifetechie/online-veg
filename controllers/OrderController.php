@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Order.php';
+require_once __DIR__ . '/../models/Cart.php';
 require_once __DIR__ . '/../vendor/autoload.php'; // Include Composer autoload
 
 use Stripe\Stripe;

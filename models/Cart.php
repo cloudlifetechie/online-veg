@@ -1,7 +1,9 @@
 <?php
 class Cart {
     public function addItem($product_id, $quantity) {
-        // Add item to cart (session or database)
+        if (!isset($_SESSION['cart'])) {
+            $_SESSION['cart'] = [];
+        }
         $_SESSION['cart'][$product_id] = $quantity;
     }
 

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Cart.php';
+require_once __DIR__ . '/../models/Product.php';
 
 class CartController {
     public function addToCart() {

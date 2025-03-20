@@ -19,6 +19,11 @@ class UserController {
         }
     }
 
+    public function logout() {
+        session_destroy();
+        header('Location: ' . BASE_URL);
+    }
+
     public function dashboard() {
         if (isset($_SESSION['user'])) {
             include __DIR__ . '/../views/admin_dashboard.php';

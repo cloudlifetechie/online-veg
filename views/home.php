@@ -8,5 +8,6 @@
 <body>
     <h1>Welcome to the Vegetable Shop</h1>
     <a href="<?php echo BASE_URL; ?>?action=login">Admin Login</a>
+    <a href="<?php echo BASE_URL; ?>?action=products">View Products</a>
 </body>
 </html>
