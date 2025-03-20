@@ -1,18 +1,19 @@
 <?php
-require_once 'config/config.php';
-
 class Order {
-
-    public static function createOrder($userId, $totalPrice) {
-        $db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-        $stmt = $db->prepare("INSERT INTO orders (user_id, total_price, status) VALUES (?, ?, 'Pending')");
-        $stmt->execute([$userId, $totalPrice]);
-        return $db->lastInsertId();
+    public function createOrder($userId, $paymentIntentId) {
+        global $db;
+        $query = "INSERT INTO orders (user_id, payment_intent_id) VALUES (?, ?)";
+        $stmt = $db->prepare($query);
+        $stmt->bind_param('is', $userId, $paymentIntentId);
+        return $stmt->execute();
     }
 
-    public static function createOrderItem($orderId, $vegetableId, $quantity, $price) {
-        $db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-        $stmt = $db->prepare("INSERT INTO order_items (order_id, vegetable_id, quantity, price) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$orderId, $vegetableId, $quantity, $price]);
+    public function getOrderDetails($orderId) {
+        global $db;
+        $query = "SELECT * FROM orders WHERE order_id = ?";
+        $stmt = $db->prepare($query);
+        $stmt->bind_param('i', $orderId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
     }
 }

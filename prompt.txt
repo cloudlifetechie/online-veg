@@ -1,32 +1,31 @@
-/vegetable-shop
+vegetable-shop/
 │
-├── /assets                    
-│   ├── /css                   
-│   ├── /images                
-│   └── /js                    
+├── assets/
+│   └── css/
+│       └── style.css
 │
-├── /config                    
-│   └── config.php             
+├── config/
+│   └── config.php
 │
-├── /controllers               
-│   ├── CartController.php     
-│   ├── OrderController.php    
-│   └── UserController.php     
+├── controllers/
+│   ├── CartController.php
+│   ├── OrderController.php
+│   └── UserController.php
 │
-├── /models                    
-│   ├── Cart.php               
-│   ├── Order.php              
-│   ├── Product.php            
-│   └── User.php               
+├── models/
+│   ├── Cart.php
+│   ├── Order.php
+│   └── User.php
 │
-├── /views                     
-│   ├── cart.php               
-│   ├── checkout.php           
-│   ├── home.php               
-│   ├── login.php              
-│   ├── order_success.php      
-│   └── register.php           
+├── views/
+│   ├── admin_login.php
+│   ├── admin_dashboard.php
+│   ├── home.php
+│   ├── cart.php
+│   ├── order_details.php
+│   └── order_success.php
 │
-├── .env                       
-├── composer.json              
-└── index.php                  
+├── public/
+│   └── index.php
+│
+└── .htaccess

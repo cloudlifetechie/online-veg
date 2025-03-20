@@ -1,40 +1,29 @@
 <?php
+// Include config file to get the Stripe API key
+require_once('../config/config.php');
+
+// Assuming you have a Cart model or session to hold cart items
+// For example, the cart could be stored in the session
 session_start();
-require_once '../config/config.php';
-require_once '../models/Cart.php';
-require_once '../models/Order.php';
-require_once '../models/User.php';
-require_once '../controllers/OrderController.php';
 
-// Ensure the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+// Example cart data (In production, this should come from your cart model/session)
+$cartItems = [
+    [
+        'name' => 'Carrot',
+        'quantity' => 2,
+        'price' => 150 // price in cents, $1.50
+    ],
+    [
+        'name' => 'Broccoli',
+        'quantity' => 1,
+        'price' => 200 // price in cents, $2.00
+    ]
+];
 
-// Get cart details
-$cart = new Cart();
-$cartItems = $cart->getItems($_SESSION['user_id']); // Pass the user ID to get the cart items
-$total = $cart->getTotal($cartItems); // Get the total from the cart items
-
-// Check if the form is submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $userId = $_SESSION['user_id'];
-    $address = $_POST['address'];
-    $paymentMethod = $_POST['payment_method'];
-
-    // Create a new order
-    $orderController = new OrderController();
-    $orderSuccess = $orderController->createOrder($userId, $cartItems, $total, $address, $paymentMethod);
-
-    if ($orderSuccess) {
-        // Clear the cart after successful order
-        $cart->clearCart($_SESSION['user_id']);
-        header('Location: order_success.php');
-        exit();
-    } else {
-        $error = "There was an error processing your order. Please try again.";
-    }
+// Calculate the total amount
+$totalAmount = 0;
+foreach ($cartItems as $item) {
+    $totalAmount += $item['quantity'] * $item['price'];
 }
 ?>
 
@@ -50,50 +39,98 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="container">
         <h1>Checkout</h1>
 
-        <?php if (isset($error)): ?>
-            <p class="error"><?= $error ?></p>
-        <?php endif; ?>
+        <h2>Your Cart</h2>
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+            <?php foreach ($cartItems as $item): ?>
+            <tr>
+                <td><?= htmlspecialchars($item['name']) ?></td>
+                <td><?= htmlspecialchars($item['quantity']) ?></td>
+                <td>$<?= number_format($item['price'] / 100, 2) ?></td>
+                <td>$<?= number_format(($item['quantity'] * $item['price']) / 100, 2) ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
 
-        <div class="cart-summary">
-            <h2>Your Cart</h2>
-            <table>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                </tr>
-                <?php foreach ($cartItems as $item): ?>
-                    <tr>
-                        <td><?= $item['name'] ?></td>
-                        <td><?= number_format($item['price'], 2) ?> £</td>
-                        <td><?= $item['quantity'] ?></td>
-                        <td><?= number_format($item['price'] * $item['quantity'], 2) ?> £</td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
+        <h3>Total Amount: $<?= number_format($totalAmount / 100, 2) ?></h3>
 
-            <p><strong>Total: <?= number_format($total, 2) ?> £</strong></p>
-        </div>
-
-        <form action="checkout.php" method="POST">
+        <!-- Stripe Payment Form -->
+        <h2>Payment Details</h2>
+        <form action="charge.php" method="POST" id="payment-form">
             <div class="form-group">
-                <label for="address">Shipping Address</label>
-                <textarea name="address" id="address" rows="4" required></textarea>
+                <label for="email">Email:</label>
+                <input type="email" name="email" id="email" required>
             </div>
 
-            <div class="form-group">
-                <label for="payment_method">Payment Method</label>
-                <select name="payment_method" id="payment_method" required>
-                    <option value="stripe">Credit/Debit Card (Stripe)</option>
-                    <!-- Add other payment methods here if needed -->
-                </select>
+            <div id="card-element" class="form-group">
+                <!-- A Stripe Element will be inserted here. -->
             </div>
+            <div id="card-errors" role="alert"></div>
 
-            <button type="submit" class="btn">Place Order</button>
+            <button type="submit" class="submit-btn">Pay Now</button>
         </form>
-    </div>
 
-    <script src="../assets/js/script.js"></script>
+        <script src="https://js.stripe.com/v3/"></script>
+        <script>
+            var stripe = Stripe('<?= STRIPE_PUBLISHABLE_KEY ?>');
+            var elements = stripe.elements();
+            var style = {
+                base: {
+                    color: "#32325d",
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: "antialiased",
+                    fontSize: "16px",
+                    "::placeholder": {
+                        color: "#aab7c4"
+                    }
+                },
+                invalid: {
+                    color: "#fa755a",
+                    iconColor: "#fa755a"
+                }
+            };
+            var card = elements.create("card", {style: style});
+            card.mount("#card-element");
+
+            var form = document.getElementById('payment-form');
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                stripe.createToken(card).then(function(result) {
+                    if (result.error) {
+                        // Inform the user if there was an error.
+                        var errorElement = document.getElementById('card-errors');
+                        errorElement.textContent = result.error.message;
+                    } else {
+                        // Send the token to your server.
+                        stripeTokenHandler(result.token);
+                    }
+                });
+            });
+
+            function stripeTokenHandler(token) {
+                var form = document.getElementById('payment-form');
+                var hiddenInput = document.createElement('input');
+                hiddenInput.setAttribute('type', 'hidden');
+                hiddenInput.setAttribute('name', 'stripeToken');
+                hiddenInput.setAttribute('value', token.id);
+                form.appendChild(hiddenInput);
+
+                // Add total amount as a hidden field
+                var hiddenAmountInput = document.createElement('input');
+                hiddenAmountInput.setAttribute('type', 'hidden');
+                hiddenAmountInput.setAttribute('name', 'amount');
+                hiddenAmountInput.setAttribute('value', '<?= $totalAmount ?>'); // Amount in cents
+                form.appendChild(hiddenAmountInput);
+
+                // Submit the form
+                form.submit();
+            }
+        </script>
+    </div>
 </body>
 </html>

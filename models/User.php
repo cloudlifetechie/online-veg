@@ -1,23 +1,19 @@
 <?php
-require_once 'config/config.php';
-
 class User {
-
-    public static function login($email, $password) {
-        $db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-        $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user && password_verify($password, $user['password'])) {
-            return $user;
-        }
-        return false;
+    public function authenticate($email, $password) {
+        global $db;
+        $query = "SELECT * FROM users WHERE email = ? AND password = ?";
+        $stmt = $db->prepare($query);
+        $stmt->bind_param('ss', $email, $password);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
     }
 
-    public static function register($name, $email, $password) {
-        $db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-        $stmt = $db->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-        $stmt->execute([$name, $email, $password]);
+    public function createUser($email, $password, $name) {
+        global $db;
+        $query = "INSERT INTO users (email, password, name) VALUES (?, ?, ?)";
+        $stmt = $db->prepare($query);
+        $stmt->bind_param('sss', $email, $password, $name);
+        return $stmt->execute();
     }
 }
